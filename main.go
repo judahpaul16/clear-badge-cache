@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
+	"regexp"
 	"time"
 )
 
@@ -85,14 +85,12 @@ func getBadgeURLs(repoURL, badgeFile string) []string {
 	}
 
 	scanner := bufio.NewScanner(resp.Body)
+	urlRegex := regexp.MustCompile(`https://camo\.githubusercontent\.com/[^\s"]+`)
 	for scanner.Scan() {
 		line := scanner.Text()
-		if strings.Contains(line, "https://camo.githubusercontent.com") {
-			parts := strings.Split(line, `alt="`)
-			if len(parts) > 1 {
-				url := strings.Split(parts[0], "\"")[0]
-				badgeURLs = append(badgeURLs, url)
-			}
+		urls := urlRegex.FindAllString(line, -1)
+		if urls != nil {
+			badgeURLs = append(badgeURLs, urls...)
 		}
 	}
 	return badgeURLs

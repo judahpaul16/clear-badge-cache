@@ -26,8 +26,7 @@ func main() {
 
 	validateURL := regexp.MustCompile(`^https?:\/\/(www\.)?github\.com\/[\w-]+\/[\w-]+(?:\.git)?$`)
 	if !validateURL.MatchString(repoURL) {
-		fmt.Println("Invalid repository URL. Must be a GitHub repository URL.")
-		os.Exit(1)
+		log.Fatalf("Invalid repository URL: %s, Must be a GitHub repository URL.", repoURL)
 	}
 
 	fmt.Println("")
@@ -35,8 +34,7 @@ func main() {
 
 	urls := getBadgeURLs(repoURL, badgeFile)
 	if len(urls) == 0 {
-		fmt.Println("No badge URLs found to purge.")
-		return
+		log.Fatalf("No badge URLs found to purge.")
 	}
 	purgeBadges(urls)
 }

@@ -26,17 +26,54 @@ func main() {
 
 	validateURL := regexp.MustCompile(`^https?:\/\/(www\.)?github\.com\/[\w-]+\/[\w-]+(?:\.git)?$`)
 	if !validateURL.MatchString(repoURL) {
-		log.Fatalf("Invalid repository URL: %s, Must be a GitHub repository URL.", repoURL)
+		log.Fatalf("Invalid repository URL: %s, Must be a GitHub repository URL.\n", repoURL)
 	}
 
 	fmt.Println("")
 	fmt.Printf("Purging cached badge images for %s%s...\n", repoURL, badgeFile)
 
-	urls := getBadgeURLs(repoURL, badgeFile)
+	urls, err := getBadgeURLs(repoURL, badgeFile)
+	if err != nil {
+		log.Fatalf("Failed to retrieve badge URLs from %s%s\n%v\n", repoURL, badgeFile, err)
+	}
 	if len(urls) == 0 {
-		log.Fatalf("No badge URLs found to purge.")
+		log.Fatalf("No badge URLs found to purge.\n")
 	}
 	purgeBadges(urls)
+}
+
+func getBadgeURLs(repoURL, badgeFile string) ([]string, error) {
+	var badgeURLs []string
+	fullURL := repoURL + badgeFile
+	fmt.Println("Requesting badges from:", fullURL)
+
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", fullURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %v", err)
+	}
+	req.Header.Set("User-Agent", "KLUDGE (Linux;)")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get response: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("non-OK HTTP status: %s", resp.Status)
+	}
+
+	scanner := bufio.NewScanner(resp.Body)
+	urlRegex := regexp.MustCompile(`https://camo\.githubusercontent\.com/[^\s"]+`)
+	for scanner.Scan() {
+		line := scanner.Text()
+		urls := urlRegex.FindAllString(line, -1)
+		if urls != nil {
+			badgeURLs = append(badgeURLs, urls...)
+		}
+	}
+	return badgeURLs, nil
 }
 
 func getRepoURLFromArgs() string {
@@ -62,42 +99,6 @@ func help() {
 	fmt.Println("usage: clear-badge-cache [ -h | --help | [ repoURL [ badgeFile ] ] ]")
 	fmt.Printf("\n       repoURL   required unless provided on command line\n       badgeFile defaults to '%s'\n\n", defaultFILE)
 	os.Exit(0)
-}
-
-func getBadgeURLs(repoURL, badgeFile string) []string {
-	var badgeURLs []string
-	fullURL := repoURL + badgeFile
-	fmt.Println("Requesting badges from:", fullURL)
-
-	userAgentString := "KLUDGE (Linux;) (please fix github tickets 224 116 111 218 414 etc)"
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", fullURL, nil)
-	if err != nil {
-		log.Fatalf("Failed to create request: %v", err)
-	}
-	req.Header.Set("User-Agent", userAgentString)
-
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatalf("Failed to get response: %v", err)
-	}
-	defer resp.Body.Close()
-
-	fmt.Println("HTTP Response Status:", resp.Status)
-	if resp.StatusCode != http.StatusOK {
-		log.Fatalf("Non-OK HTTP status: %s", resp.Status)
-	}
-
-	scanner := bufio.NewScanner(resp.Body)
-	urlRegex := regexp.MustCompile(`https://camo\.githubusercontent\.com/[^\s"]+`)
-	for scanner.Scan() {
-		line := scanner.Text()
-		urls := urlRegex.FindAllString(line, -1)
-		if urls != nil {
-			badgeURLs = append(badgeURLs, urls...)
-		}
-	}
-	return badgeURLs
 }
 
 func purgeBadges(urls []string) {

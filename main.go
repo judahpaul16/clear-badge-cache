@@ -24,6 +24,12 @@ func main() {
 	repoURL := getRepoURLFromArgs()
 	badgeFile := getBadgeFileFromArgs()
 
+	validateURL := regexp.MustCompile(`^https?:\/\/(www\.)?github\.com\/[\w-]+\/[\w-]+(?:\.git)?$`)
+	if !validateURL.MatchString(repoURL) {
+		fmt.Println("Invalid repository URL. Must be a GitHub repository URL.")
+		os.Exit(1)
+	}
+
 	fmt.Println("")
 	fmt.Printf("Purging cached badge images for %s%s...\n", repoURL, badgeFile)
 

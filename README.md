@@ -1,4 +1,4 @@
-# Clear Badge Cache 🧹✨
+# Clear Badge Cache CLI 🧹✨
 
 [![Go Version](https://img.shields.io/github/go-mod/go-version/judahpaul16/clear-badge-cache)](https://go.dev/dl/)
 [![Go Report Card](https://goreportcard.com/badge/github.com/judahpaul16/clear-badge-cache)](https://goreportcard.com/report/github.com/judahpaul16/clear-badge-cache)
@@ -86,19 +86,12 @@ To run Clear Badge Cache, navigate to the `dist` directory and execute the binar
 - Linux/MacOS:
 
   ```bash
-  ./clear-badge-cache-linux.sh
+  sh ./clear-badge-cache.sh
   ```
-
-- MacOS (alternative):
-
-  ```bash
-  ./clear-badge-cache-mac.sh
-  ```
-
 - Windows:
 
   ```cmd
-  .\clear-badge-cache-win.exe
+  .\clear-badge-cache.exe
   ```
 
 #### Command Line Arguments 🖊️

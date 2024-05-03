@@ -2,6 +2,7 @@
 
 [![Go Version](https://img.shields.io/github/go-mod/go-version/judahpaul16/clear-badge-cache)](https://go.dev/dl/)
 [![Go Report Card](https://goreportcard.com/badge/github.com/judahpaul16/clear-badge-cache)](https://goreportcard.com/report/github.com/judahpaul16/clear-badge-cache)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/judahpaul16/clear-badge-cache/go.yml)](https://github.com/judahpaul16/clear-badge-cache/actions)
 [![GitHub](https://img.shields.io/github/license/judahpaul16/clear-badge-cache)](LICENSE)
 [![Website](https://img.shields.io/badge/website-https://clear--badge--cache.com-blue)](https://clear-badge-cache.com/)
 
